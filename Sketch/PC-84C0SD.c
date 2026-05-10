@@ -17,7 +17,7 @@ void setup(void) {
 	TransInit();
 	CpmEmuInit(False);
 
-	MatrixInit();
+	MatrixInit(False);
 	VportInit();
 	ResetInit();
 	SpiLcdInit(False);

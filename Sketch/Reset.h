@@ -136,7 +136,7 @@ static void ResetMove(void) {
 	TransClear();
 	CpmEmuInit(True);
 
-	MatrixInit();
+	MatrixInit(True);
 	VportInit();
 	SpiLcdInit(True);
 

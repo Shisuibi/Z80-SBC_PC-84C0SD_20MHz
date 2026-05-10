@@ -113,13 +113,13 @@ static void MatrixFlushScreen(void) {
 	SpiLCD.endWrite();
 }
 //------------------------------------------------------------------------------//
-static void MatrixAmbiLight(Sflt32 fAmbi) {
-	if(((fAmbiLight = fAmbi) + fDiffLight) > 1.0) fDiffLight = 1.0 - fAmbiLight;
+static void MatrixAmbiLight(void) {
+	if((fAmbiLight + fDiffLight) > 1.0) fDiffLight = 1.0 - fAmbiLight;
 }
 //------------------------------------------------------------------------------//
-static void MatrixParaLight(Sflt32 fDiff, Sflt32* pVec) {
+static void MatrixParaLight(Sflt32* pVec) {
 	Sint08 i;
-	if((fAmbiLight + (fDiffLight = fDiff)) > 1.0) fAmbiLight = 1.0 - fDiffLight;
+	if((fAmbiLight + fDiffLight) > 1.0) fAmbiLight = 1.0 - fDiffLight;
 
 	for(i = 0;i < XYZW;i++) afParaLight[i] = pVec[i];
 	MatrixVecUnit(afParaLight);
@@ -453,9 +453,28 @@ static void MatrixFrameRate(void) {
 
 
 //==============================================================================//
-static void MatrixInit(void) {
-	iCurrMatrix = 0;
-	MatrixNormal();
+static void MatrixInit(Sint08 iReset) {
+	Sint08 i;
+
+	if(iReset == False) {
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+	}
+
+	iCurrMatrix = 0;	MatrixNormal();
+	fAmbiLight = 1.0;	fDiffLight = 0.0;
+
+	for(i = 0;i < XYZW;i++) {
+		if(i != W) {
+			aiCoordinate[i] = 0x0000;	afCoordinate[i] = 0.0;
+			afParaLight[i] = 0.0;
+		} else {
+			aiCoordinate[i] = 0x0100;	afCoordinate[i] = 1.0;
+			afParaLight[i] = 1.0;
+		}
+	}
 }
 //------------------------------------------------------------------------------//
 static void MatrixMove(void) {
