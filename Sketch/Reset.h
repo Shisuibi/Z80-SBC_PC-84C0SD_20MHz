@@ -93,7 +93,7 @@ static void ResetBoot(void) {
 		EspDmaPageAdrs();
 
 		for(j = iCpuPortBus = 0x00;j < 0x0100;j++, iCpuPortBus++) {
-			iCpuDataBus = pgm_read_byte(aiRomBootImage + i++);
+			iCpuDataBus = aiRomBootImage[i++];
 			EspDmaWrite();
 		}
 	}

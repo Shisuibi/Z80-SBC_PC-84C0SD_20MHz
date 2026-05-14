@@ -109,13 +109,13 @@ static Uint16 iCpmDiskDmaAdrs;							//	DISK転送アドレス
 
 
 //==============================================================================//
-static Cint08* pSdcCcprBinFileName = "/CCP-Z80.BIN";	//	CCPバイナリファイル名
-static Cint08* pSdcBdosBinFileName = "/BDOS-DR.BIN";	//	BDOSバイナリファイル名
+static Cint08* pSdcCcprBinFileName = "/CCP-Z80.BIN";	//	CCPバイナリファイル名称
+static Cint08* pSdcBdosBinFileName = "/BDOS-DR.BIN";	//	BDOSバイナリファイル名称
 
-static Cint08* pSdcCpmDiskFileName = "/CPMDISK.DAT";	//	DISKイメージファイル名
-static Cint08* pSdcAutoExecFileName = "AUTOEXEC.SUB";	//	自動実行ファイル名
+static Cint08* pSdcCpmDiskFileName = "/CPMDISK.DAT";	//	DISKイメージファイル名称
+static Cint08* pSdcAutoExecFileName = "AUTOEXEC.SUB";	//	自動実行ファイル名称
 
-static Cint08* pSdcUserDirName = "0123456789ABCDEF .";	//	ユーザーディレクトリ名
+static Cint08* pSdcUserDirName = "0123456789ABCDEF .";	//	ユーザーディレクトリ名称
 static Cint08 aiSdcDispString[0x0C] = {					//	進捗状況表示文字列
 	'.',	'o',	':',	SP ,	'|',	NUL,
 	'|',	SP ,	NUL,	CR ,	LF ,	NUL,

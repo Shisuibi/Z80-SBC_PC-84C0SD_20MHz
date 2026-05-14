@@ -70,7 +70,7 @@ typedef union tCoordinate {
 //------------------------------------------------------------------------------//
 typedef struct tTriInfo {
 	Sint16				aiPos[3][XY];					//	表示座標
-	Uint32				iColor;							//	表示色
+	Uint32				iColor;							//	表示色彩
 } TriInfo;												//	三角情報
 //------------------------------------------------------------------------------//
 static void MatrixFlushScreen(void);

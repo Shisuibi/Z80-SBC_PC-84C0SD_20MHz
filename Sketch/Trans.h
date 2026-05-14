@@ -26,10 +26,10 @@
 #define		SerialBaudRateDx			460800			//	通信端末ボーレート（電文）
 
 #define		SerialSegSizeTx				0x0080			//	通信端末切片文字数（送信）
-#define		SerialBufSizeDx				0x0800			//	シリアル緩衝サイズ（電文）
+#define		SerialBufSizeDx				0x1000			//	シリアル緩衝サイズ（電文）
 //------------------------------------------------------------------------------//
-#define		SerialBufSizeRx				0x0400			//	シリアル緩衝サイズ（受信）
-#define		SerialBufSizeTx				0x0400			//	シリアル緩衝サイズ（送信）
+#define		SerialBufSizeRx				0x0200			//	シリアル緩衝サイズ（受信）
+#define		SerialBufSizeTx				0x0200			//	シリアル緩衝サイズ（送信）
 //------------------------------------------------------------------------------//
 #define		SerialBufMaskRx(iIndex)	\
 					((iIndex) & (SerialBufSizeRx - 1))	//	シリアル緩衝マスク（受信）

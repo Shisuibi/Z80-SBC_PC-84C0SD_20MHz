@@ -54,11 +54,11 @@ static Uint16 iRomImageAdrs;							//	ROM“ÇžƒAƒhƒŒƒX
 static void VportMakeDisk(void) {
 	if(PioInput) {
 				if((iRomImageAdrs >= 0x0000)&&(iRomImageAdrs < 0x0100))
-					iPioDataBus = pgm_read_byte(aiRomBootImage + 0x0000 + iRomImageAdrs);
+					iPioDataBus = aiRomBootImage[0x0000 + iRomImageAdrs];
 		else	if((iRomImageAdrs >= 0x0100)&&(iRomImageAdrs < CpmBiosBaseAdrs))
 					iPioDataBus = 0xFF;
 		else	if((iRomImageAdrs >= CpmBiosBaseAdrs)&&(iRomImageAdrs <= 0xFFFF))
-					iPioDataBus = pgm_read_byte(aiRomBootImage + 0x0100 + iRomImageAdrs - CpmBiosBaseAdrs);
+					iPioDataBus = aiRomBootImage[0x0100 + iRomImageAdrs - CpmBiosBaseAdrs];
 		iRomImageAdrs++;
 	} else {
 		if((iCpmBiosParamH == '1')||(iCpmBiosParamH == '2')) {

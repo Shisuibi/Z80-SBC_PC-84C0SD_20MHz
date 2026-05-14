@@ -59,22 +59,29 @@ static Sint16 iLcdRadX3, iLcdRadY3;						//	液晶表示半径X3Y3
 
 
 //==============================================================================//
-static Cint08* pLcdStarLogoFileName = "/LCDSLOGO.BMP";	//	液晶表示起動装飾ファイル名
-static Cint08* pLcdScrnShotFileName = "/LCDSSHOT.BMP";	//	液晶表示画面撮影ファイル名
+static Cint08* pLcdStarLogoFileName = "/LCDSLOGO.BMP";	//	液晶表示起動装飾ファイル名称
+static Cint08* pLcdScrnShotFileName = "/LCDSSHOT.BMP";	//	液晶表示画面撮影ファイル名称
 //------------------------------------------------------------------------------//
 static Uint08 aiBitMapHead[LcdBitMapHeadSize];			//	BITMAP先頭データ
 static Uint08 aiBitMapBuff[LcdScrnPixelX * 3];			//	BITMAP緩衝エリア
 static File32 LcdBitMapFile;							//	BITMAPファイル識別子
+//------------------------------------------------------------------------------//
+static Uint16 aiLcdGrpColor[4][6] = {					//	グラフィック基準色彩
+	{	TFT_BLACK,	TFT_NAVY,		TFT_DARKGREEN,	TFT_DARKCYAN,	TFT_MAROON,		TFT_PURPLE,			},
+	{	TFT_OLIVE,	TFT_LIGHTGREY,	TFT_DARKGREY,	TFT_BLUE,		TFT_GREEN,		TFT_CYAN,			},
+	{	TFT_RED,	TFT_MAGENTA,	TFT_YELLOW,		TFT_WHITE,		TFT_ORANGE,		TFT_GREENYELLOW,	},
+	{	TFT_PINK,	TFT_BROWN,		TFT_GOLD,		TFT_SILVER,		TFT_SKYBLUE,	TFT_VIOLET,			},
+};
 //==============================================================================//
 
 
 //==============================================================================//
-static Cint08* apSbcDeviceName[2] = {					//	SBCデバイス名
+static Cint08* apSbcDeviceName[2] = {					//	SBCデバイス名称
 	"Z80 Single Board Computer <<<< PC-84C0SD 20MHz >>>>",
 	" Implemented by Shisuibi --Grand Master Sorcerian--",
 };
 //------------------------------------------------------------------------------//
-static Uint16 aiSegBitColor[2][10] = {					//	セグメントビット色
+static Uint16 aiSegBitColor[2][10] = {					//	セグメントビット色彩
 	{	TFT_DARKGREY,	TFT_DARKGREY,	TFT_DARKGREY,	TFT_DARKGREY,	TFT_DARKGREY,
 		TFT_DARKGREY,	TFT_DARKGREY,	TFT_DARKGREY,	TFT_DARKGREY,	TFT_DARKGREY,	},
 
@@ -82,7 +89,7 @@ static Uint16 aiSegBitColor[2][10] = {					//	セグメントビット色
 		TFT_GREEN   ,	TFT_GREEN   ,	TFT_GREEN   ,	TFT_SKYBLUE ,	TFT_BLUE    ,	},
 };
 //------------------------------------------------------------------------------//
-static Cint08* apSegBitName[3][3][10] = {				//	セグメントビット名
+static Cint08* apSegBitName[3][3][10] = {				//	セグメントビット名称
 	{	{	"HL",	"CE",	"WE",	"NR",	"IR",	"B3",	"B2",	"B1",	"B0",	"BA",	},
 		{	"MS",	"EC",	"CF",	"CN",	"CS",	"CK",	"CM",	"PH",	"MH",	"LC",	},
 		{	"SD",	"T7",	"T6",	"T5",	"T4",	"T3",	"T2",	"T1",	"T0",	"BL",	},	},
@@ -139,7 +146,7 @@ static Uint16 aiSorStarCol[4] = {						//	ソーサリアン流星色彩
 static Sint16 aiSorStarPos[4][LcdSorStarMax][XYZ];		//	ソーサリアン流星座標
 static Uint32 iLcdSorMicros;							//	液晶表示マイクロ秒（ソーサリアン）
 //------------------------------------------------------------------------------//
-static Cint08* pLcdTchCalibName = "/LcdTchCalibData1";	//	液晶表示タッチ調整名称
+static Cint08* pLcdTchCalibName = "/LcdTchCalibData";	//	液晶表示タッチ調整名称
 //------------------------------------------------------------------------------//
 static Uint16 aiTchCalibData[LcdTchCalibSize];			//	タッチ調整データ格納領域
 static File TchCalibFile;								//	タッチ調整ファイル識別子
@@ -190,19 +197,12 @@ static void SpiLcdScrnShot(void) {
 
 //==============================================================================//
 static void SpiLcdGrpClear(void) {
-	static Uint16 aiColor[4][6] = {
-		{	TFT_BLACK,	TFT_NAVY,		TFT_DARKGREEN,	TFT_DARKCYAN,	TFT_MAROON,		TFT_PURPLE,			},
-		{	TFT_OLIVE,	TFT_LIGHTGREY,	TFT_DARKGREY,	TFT_BLUE,		TFT_GREEN,		TFT_CYAN,			},
-		{	TFT_RED,	TFT_MAGENTA,	TFT_YELLOW,		TFT_WHITE,		TFT_ORANGE,		TFT_GREENYELLOW,	},
-		{	TFT_PINK,	TFT_BROWN,		TFT_GOLD,		TFT_SILVER,		TFT_SKYBLUE,	TFT_VIOLET,			},
-	};
 	Sint16 i, j;
-
 	SpiLCD.startWrite();
 
 	for(i = 0;i < 4;i++) {
 		for(j = 0;j < 6;j++) {
-			SpiLCD.writeFillRect(j * 80, i * 80, 80, 80, aiColor[i][j]);
+			SpiLCD.writeFillRect(j * 80, i * 80, 80, 80, aiLcdGrpColor[i][j]);
 		}
 	}
 
