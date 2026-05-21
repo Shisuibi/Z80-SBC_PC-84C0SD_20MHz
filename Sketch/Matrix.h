@@ -373,16 +373,11 @@ static void MatrixPers(Sflt32 fRad, Sflt32 fNea, Sflt32 fFar) {
 static void MatrixClear(void) {
 	Sint16 i;
 
-	iCurrZ3dModel = 0;
-	iCurrZ3dStorage = 0;
-
+	iCurrZ3dModel = 0;	iCurrZ3dStorage = 0;
 	iModelEntry = iModelShade = Z3dModelMax;
-#ifdef		BuildMaster
-	for(i = 0;i < Z3dModelMax;i++)	asModelInfo[i].ModelHead.iExternal = 0;
-#endif
-#ifdef		BuildSlave
-									asModelInfo[0].ModelHead.iExternal = 0;
-#endif
+
+	if(Esp32Master) for(i = 0;i < Z3dModelMax;i++)	asModelInfo[i].ModelHead.iExternal = 0;
+	else											asModelInfo[0].ModelHead.iExternal = 0;
 }
 //------------------------------------------------------------------------------//
 static void MatrixBuild(Uint08 iModel) {
