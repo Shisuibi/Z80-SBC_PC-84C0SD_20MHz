@@ -53,9 +53,9 @@
 		<TR><TD>
 			<IMG SRC="https://crystalpalace.web.fc2.com/instruct/melody.png" ALT="Melody" WIDTH="480">
 		</TD><TD>
-			<IMG SRC="https://crystalpalace.web.fc2.com/specific/z3dapi.png" ALT="Z3D API画面" WIDTH="480">
+			<IMG SRC="https://crystalpalace.web.fc2.com/specific/z3dapi00.png" ALT="Z3D API画面" WIDTH="480">
 		</TD><TD>
-			<IMG SRC="https://crystalpalace.web.fc2.com/instruct/z3dapi.png" ALT="Z3D API" WIDTH="480">
+			<IMG SRC="https://crystalpalace.web.fc2.com/instruct/z3dapi02.png" ALT="Z3D API" WIDTH="480">
 		</TD></TR>
 	</TABLE></DIV>
 </HTML>
