@@ -16,7 +16,7 @@ enum {
 
 	Z3dProcInit     ,									//	Z3Dモード（初期化）
 	Z3dProcFlushScrn,									//	Z3Dモード（画面更新）
-	Z3dProcAmbiLight,									//	Z3Dモード（環境光源係数）
+	Z3dProcAmbiLight,									//	Z3Dモード（環境反射係数）
 	Z3dProcDiffLight,									//	Z3Dモード（拡散反射係数）
 	Z3dProcMatPush  ,									//	Z3Dモード（行列積重）
 	Z3dProcMatPop   ,									//	Z3Dモード（行列取除）
@@ -126,7 +126,7 @@ static Uint16 iModelShade;								//	模型陰影
 static Sfix88 aiCoordinate[XYZW];						//	演算座標（固定小数点数）
 static Sflt32 afCoordinate[XYZW];						//	演算座標（浮動小数点数）
 //------------------------------------------------------------------------------//
-static Sflt32 fAmbiLight;								//	環境光源係数
+static Sflt32 fAmbiLight;								//	環境反射係数
 static Sflt32 fDiffLight;								//	拡散反射係数
 
 static Sflt32 afParaLight[XYZW];						//	平行光源ベクトル
