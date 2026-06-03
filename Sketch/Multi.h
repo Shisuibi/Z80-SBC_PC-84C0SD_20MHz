@@ -165,20 +165,7 @@ static void MultiZ3dFlush(void) {
 }
 //------------------------------------------------------------------------------//
 static void MultiZ3dPoly(void) {
-	Uint08 iCount = MultiRecep();
-	Sint16 i;
-	TriangleInfo sTriangle;
-
-	i = sizeof(TriangleInfo) * (Sint16)iCount;
-	while(Serial1.available() < i);
-
-	for(i = 0;i < iCount;i++) {
-		Serial1.read((Uint08*)(&sTriangle), sizeof(TriangleInfo));
-
-		Canvas.fillTriangle(	sTriangle.aiPos[0][X], sTriangle.aiPos[0][Y],
-								sTriangle.aiPos[1][X], sTriangle.aiPos[1][Y],
-								sTriangle.aiPos[2][X], sTriangle.aiPos[2][Y], sTriangle.iColor	);
-	}
+	MatrixTriangle();
 }
 //------------------------------------------------------------------------------//
 static void MultiPioOutput(void) {

@@ -60,6 +60,7 @@ enum {
 #define		Z3dPolygonMax				0xFF			//	‘½Šp’Ç‰ÁãŒÀ ¦
 //------------------------------------------------------------------------------//
 #define		MdlAttrBackJudge			0x01			//	–ÍŒ^•`‰æ‘®«i— –Ê”»’èj
+#define		MdlAttrWireFrame			0x02			//	–ÍŒ^•`‰æ‘®«ij‹à˜g‘gj
 #define		MdlAttrDepthSort			0x80			//	–ÍŒ^•`‰æ‘®«i‰œs®—ñj
 //------------------------------------------------------------------------------//
 typedef struct tPolyInfo {
@@ -103,6 +104,7 @@ typedef struct tTriangleInfo {
 } TriangleInfo;											//	ŽOŠpî•ñ
 //------------------------------------------------------------------------------//
 static void MatrixFlushScreen(void);
+static void MatrixTriangle(void);
 //==============================================================================//
 
 
@@ -516,16 +518,45 @@ static void MatrixDraw(void) {
 	}
 
 	if(iCount > 0) {
-		MultiData(CodeTelZ3dPoly);	MultiData(iCount);
-		Serial1.write((Uint08*)asCalcTriangle, sizeof(TriangleInfo) * iCount);
+		MultiData(CodeTelZ3dPoly);	MultiData(pModel->ModelHead.Internal.iAttribute);
+		MultiData((Uint08)iCount);	Serial1.write((Uint08*)asCalcTriangle, sizeof(TriangleInfo) * iCount);
+	}
+}
+//------------------------------------------------------------------------------//
+static void MatrixTriangle(void) {
+	Uint08 iAttribute = MultiRecep();
+	Uint08 iBackJudge = iAttribute & MdlAttrBackJudge;
+	Uint08 iWireFrame = iAttribute & MdlAttrWireFrame;
+	Sint16 i, iCount = (Sint16)MultiRecep();
+	TriangleInfo sTriangle;
+
+	i = sizeof(TriangleInfo) * iCount;
+	while(Serial1.available() < i);
+
+	for(i = 0;i < iCount;i++) {
+		Serial1.read((Uint08*)(&sTriangle), sizeof(TriangleInfo));
+
+		if(iWireFrame != False) {
+			if(iBackJudge != False) {
+				Canvas.fillTriangle(	sTriangle.aiPos[0][X], sTriangle.aiPos[0][Y],
+										sTriangle.aiPos[1][X], sTriangle.aiPos[1][Y],
+										sTriangle.aiPos[2][X], sTriangle.aiPos[2][Y], iLcdRgbC1		);
+			}
+
+			Canvas.drawTriangle(	sTriangle.aiPos[0][X], sTriangle.aiPos[0][Y],
+									sTriangle.aiPos[1][X], sTriangle.aiPos[1][Y],
+									sTriangle.aiPos[2][X], sTriangle.aiPos[2][Y], sTriangle.iColor	);
+		} else {
+			Canvas.fillTriangle(	sTriangle.aiPos[0][X], sTriangle.aiPos[0][Y],
+									sTriangle.aiPos[1][X], sTriangle.aiPos[1][Y],
+									sTriangle.aiPos[2][X], sTriangle.aiPos[2][Y], sTriangle.iColor	);
+		}
 	}
 }
 //==============================================================================//
 
 
 //==============================================================================//
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 static void MatrixFrameRate(void) {
 	static Uint32 iCount = 0;
 	static Uint32 iFrame = 0;
@@ -540,8 +571,6 @@ static void MatrixFrameRate(void) {
 		iCount = iFrame = 0;
 	}
 }
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 //==============================================================================//
 
 
@@ -555,14 +584,8 @@ static void Z3dApiFlushScrn(void) {
 	MultiData(CodeTelZ3dFlush);
 	MultiWait(CodeTelZ3dFlush);
 
+//	MatrixFrameRate();
 	iCurrZ3dProc = Z3dProcStandBy;
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
-/*@@@@
-	MatrixFrameRate();
-@@@@*/
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 }
 //------------------------------------------------------------------------------//
 static void Z3dApiAmbiLight(void) {
