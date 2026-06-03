@@ -172,7 +172,7 @@ static void SpiLcdScrnShot(void) {
 	Uint16 iColor;
 	Sint16 iPosX, iPosY;
 
-	LcdBitMapFile = SD.open(pLcdScrnShotFileName, O_CREAT | O_WRITE);
+	LcdBitMapFile = SD.open(pLcdScrnShotFileName, O_CREAT | O_WRONLY);
 	LcdBitMapFile.write(aiBitMapHead, LcdBitMapHeadSize);
 
 	for(iPosY = (LcdScrnPixelY - 1);iPosY >= 0;iPosY--) {
