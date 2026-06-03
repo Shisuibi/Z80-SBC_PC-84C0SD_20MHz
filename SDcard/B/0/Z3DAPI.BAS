@@ -14,8 +14,9 @@
 230 CF= 45.0:OUT &H6F,CF*256/180:OUT &H64,0
 240 REM ---- Push Multiply Matrix ----
 250 OUT &H6B,ML:OUT &H64,0
-260 REM ---- Clear Screen ----
+260 REM ---- Clear Screen & Background Color----
 270 OUT &H47,&H00:OUT &H46,&H00:OUT &H41,1
+280 OUT &H47,&H86:OUT &H46,&H7D
 300 REM ---- Push Viewpoint Matrix ----
 310 CF=0.0:GOSUB 900:OUT &H79,CH:OUT &H78,CL
 320 CF=0.0:GOSUB 900:OUT &H7B,CH:OUT &H7A,CL
