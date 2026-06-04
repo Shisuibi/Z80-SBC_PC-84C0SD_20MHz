@@ -53,7 +53,7 @@ enum {
 //------------------------------------------------------------------------------//
 #define		Z3dMatrixMax				0x10			//	s—ñƒXƒ^ƒbƒNãŒÀ
 
-#define		ModelStorageMax				0x9800			//	–ÍŒ^Ši”[—ÌˆæãŒÀ
+#define		ModelStorageMax				0x9000			//	–ÍŒ^Ši”[—ÌˆæãŒÀ
 #define		Z3dModelMax					0x0100			//	–ÍŒ^’Ç‰ÁãŒÀ ¦
 														//	¦y’ˆÓzãŒÀŒŸ¸È—ª
 #define		Z3dVertexMax				0xFF			//	’¸“_’Ç‰ÁãŒÀ ¦
