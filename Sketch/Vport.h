@@ -515,12 +515,12 @@ static void VportLcdRadY3H(void) {
 
 //==============================================================================//
 static void VportZ3dInit(void) {
-	if(PioInput) {	iPioDataBus = 0x00;		MultiCpuOutput();	}
+	if(PioInput) iPioDataBus = 0x00;
 	if(Esp32Master) iCurrZ3dProc = Z3dProcInit;
 }
 //------------------------------------------------------------------------------//
 static void VportZ3dFlushScrn(void) {
-	if(PioInput) {	iPioDataBus = 0x00;		MultiCpuOutput();	}
+	if(PioInput) iPioDataBus = 0x00;
 	if(Esp32Master) iCurrZ3dProc = Z3dProcFlushScrn;
 }
 //------------------------------------------------------------------------------//
@@ -598,13 +598,23 @@ static void VportZ3dMatPers(void) {
 
 //==============================================================================//
 static void VportZ3dMdlClear(void) {
-	if(PioInput)	{	iPioDataBus = 0x00;		iCurrZ3dProc = Z3dProcMdlClear;		}
-	else			{	if(Esp32Master) iCurrZ3dProc = Z3dProcMdlBuild;		}
+	if(PioInput) iPioDataBus = 0x00;
+	if(Esp32Master) iCurrZ3dProc = Z3dProcMdlClear;
 }
 //------------------------------------------------------------------------------//
 static void VportZ3dMdlBuild(void) {
-	if(PioInput) iPioDataBus = asModelInfo[iCurrZ3dModel].ModelHead.Internal.iAllocate;
-	else {	if(Esp32Master) iCurrZ3dModel = iPioDataBus;	}
+	if(PioInput) iPioDataBus = asModelInfo[iCurrZ3dModel].ModelHead.Internal.iMaterialCount;
+	else {	if(Esp32Master) iCurrZ3dProc = Z3dProcMdlBuild;		}
+}
+//------------------------------------------------------------------------------//
+static void VportZ3dMdlChange(void) {
+	if(PioInput) iPioDataBus = asModelInfo[iCurrZ3dModel].ModelHead.Internal.iMaterialCount;
+	else {	if(Esp32Master) iCurrZ3dProc = Z3dProcMdlChange;	}
+}
+//------------------------------------------------------------------------------//
+static void VportZ3dMdlMate(void) {
+	if(PioInput) iPioDataBus = asModelInfo[iCurrZ3dModel].ModelHead.Internal.iMaterialCount;
+	else {	if(Esp32Master) iCurrZ3dProc = Z3dProcMdlMate;	}
 }
 //------------------------------------------------------------------------------//
 static void VportZ3dMdlVertex(void) {
@@ -619,12 +629,12 @@ static void VportZ3dMdlPoly(void) {
 //------------------------------------------------------------------------------//
 static void VportZ3dMdlEntry(void) {
 	if(PioInput) iPioDataBus = asModelInfo[iCurrZ3dModel].ModelHead.Internal.iVertexCount;
-	else {	if(Esp32Master) iCurrZ3dProc = Z3dProcMdlEntry;	}
+	else {	if(Esp32Master) iCurrZ3dProc = Z3dProcMdlEntry;		}
 }
 //------------------------------------------------------------------------------//
 static void VportZ3dMdlShade(void) {
 	if(PioInput) iPioDataBus = asModelInfo[iCurrZ3dModel].ModelHead.Internal.iPolygonCount;
-	else {	if(Esp32Master) iCurrZ3dProc = Z3dProcMdlShade;	}
+	else {	if(Esp32Master) iCurrZ3dProc = Z3dProcMdlShade;		}
 }
 //------------------------------------------------------------------------------//
 static void VportZ3dVectorXL(void) {
@@ -805,8 +815,8 @@ static void (* apVportInOut[0x0100])(void) = {
 	VportZ3dMatRotX  ,	VportZ3dMatRotY  ,	VportZ3dMatRotZ  ,	VportZ3dMatMulti ,
 	VportZ3dMatTrans ,	VportZ3dMatScale ,	VportZ3dMatDevice,	VportZ3dMatPers  ,
 
-	VportZ3dMdlClear ,	VportZ3dMdlBuild ,	VportZ3dMdlVertex,	VportZ3dMdlPoly  ,
-	VportZ3dMdlEntry ,	VportZ3dMdlShade ,	VportInOutNop    ,	VportInOutNop    ,
+	VportZ3dMdlClear ,	VportZ3dMdlBuild ,	VportZ3dMdlChange,	VportZ3dMdlMate  ,
+	VportZ3dMdlVertex,	VportZ3dMdlPoly  ,	VportZ3dMdlEntry ,	VportZ3dMdlShade ,
 	VportZ3dVectorXL ,	VportZ3dVectorXH ,	VportZ3dVectorYL ,	VportZ3dVectorYH ,
 	VportZ3dVectorZL ,	VportZ3dVectorZH ,	VportZ3dVectorWL ,	VportZ3dVectorWH ,
 

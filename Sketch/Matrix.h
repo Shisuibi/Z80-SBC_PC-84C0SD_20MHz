@@ -33,7 +33,9 @@ enum {
 	Z3dProcMatPers  ,									//	Z3DÉÇÅ[ÉhÅiìßéãïœä∑çsóÒÅj
 
 	Z3dProcMdlClear ,									//	Z3DÉÇÅ[ÉhÅiñÕå^è¡ãéÅj
-	Z3dProcMdlBuild ,									//	Z3DÉÇÅ[ÉhÅiñÕå^í«â¡ÅEïœçXÅj
+	Z3dProcMdlBuild ,									//	Z3DÉÇÅ[ÉhÅiñÕå^í«â¡Åj
+	Z3dProcMdlChange,									//	Z3DÉÇÅ[ÉhÅiñÕå^ïœçXÅj
+	Z3dProcMdlMate  ,									//	Z3DÉÇÅ[ÉhÅiçﬁéøí«â¡ÅEïœçXÅj
 	Z3dProcMdlVertex,									//	Z3DÉÇÅ[ÉhÅií∏ì_í«â¡ÅEïœçXÅj
 	Z3dProcMdlPoly  ,									//	Z3DÉÇÅ[ÉhÅiëΩäpí«â¡ÅEïœçXÅj
 	Z3dProcMdlEntry ,									//	Z3DÉÇÅ[ÉhÅiñÕå^ìoò^Åj
@@ -56,6 +58,7 @@ enum {
 #define		ModelStorageMax				0x9000			//	ñÕå^äiî[óÃàÊè„å¿
 #define		Z3dModelMax					0x0100			//	ñÕå^í«â¡è„å¿ Å¶
 														//	Å¶Åyíçà”Åzè„å¿åüç∏è»ó™
+#define		Z3dMaterialMax				0xFF			//	çﬁéøí«â¡è„å¿ Å¶
 #define		Z3dVertexMax				0xFF			//	í∏ì_í«â¡è„å¿ Å¶
 #define		Z3dPolygonMax				0xFF			//	ëΩäpí«â¡è„å¿ Å¶
 //------------------------------------------------------------------------------//
@@ -63,22 +66,24 @@ enum {
 #define		MdlAttrWireFrame			0x02			//	ñÕå^ï`âÊëÆê´Åiêjã‡ògëgÅj
 #define		MdlAttrDepthSort			0x80			//	ñÕå^ï`âÊëÆê´ÅiâúçsêÆóÒÅj
 //------------------------------------------------------------------------------//
-typedef struct tPolyInfo {
-	Uint08				aiVertex[XYZ];					//	ëΩäpí∏ì_
-	Uint08				iReservedV;						//	ó\îı
-
-	Uint08				aiMaterial[XYZ];				//	ëΩäpçﬁéø
-	Uint08				iReservedM;						//	ó\îı
-} PolyInfo;
+typedef struct tMaterialInfo {
+	Uint08				aiColor[XYZ];					//	çﬁéøêFç 
+	Uint08				iReserved;						//	ó\îı
+} MaterialInfo;											//	çﬁéøèÓïÒ
+//------------------------------------------------------------------------------//
+typedef struct tPolygonInfo {
+	Uint08				aiVertex[XYZ];					//	í∏ì_î‘çÜ
+	Uint08				iMaterial;						//	çﬁéøî‘çÜ
+} PolygonInfo;											//	ëΩäpèÓïÒ
 //------------------------------------------------------------------------------//
 typedef struct tModelInfo {
 	union tModelHead {
 		struct tInternal {
+			Uint08				iAttribute;				//	ï`âÊëÆê´
+			Uint08				iMaterialCount;			//	çﬁéøêî
+
 			Uint08				iVertexCount;			//	í∏ì_êî
 			Uint08				iPolygonCount;			//	ëΩäpêî
-
-			Uint08				iAttribute;				//	ï`âÊëÆê´
-			Uint08				iAllocate;				//	óÃàÊäÑìñ
 		} Internal;										//	ì‡ïîå`éÆ
 
 		Uint32				iExternal;					//	äOïîå`éÆ
@@ -87,15 +92,16 @@ typedef struct tModelInfo {
 	Sflt32				(* pVertex)[XYZW];				//	äiî[óÃàÊÅiñÕå^í∏ì_Åj
 	Sflt32				(* pNormal)[XYZW];				//	äiî[óÃàÊÅiñÕå^ñ@ê¸Åj
 
-	PolyInfo*			pPolyInfo;						//	äiî[óÃàÊÅiñÕå^ëΩäpÅj
+	MaterialInfo*		pMaterial;						//	äiî[óÃàÊÅiñÕå^çﬁéøÅj
+	PolygonInfo*		pPolygon;						//	äiî[óÃàÊÅiñÕå^ëΩäpÅj
 } ModelInfo;											//	ñÕå^èÓïÒ
 //------------------------------------------------------------------------------//
-typedef struct tMaterialInfo {
-	Uint08				aiMaterial[XYZ];				//	ëΩäpçﬁéø
-	Uint08				iReservedM;						//	ó\îı
+typedef struct tDistanceInfo {
+	Uint08				aiColor[XYZ];					//	ëΩäpêFç 
+	Uint08				iReserved;						//	ó\îı
 
 	Sflt32				fCenter;						//	ëΩäpèdêS
-} MaterialInfo;
+} DistanceInfo;											//	ãóó£èÓïÒ
 //------------------------------------------------------------------------------//
 typedef struct tTriangleInfo {
 	Sint16				aiPos[XYZ][XY];					//	ï\é¶ç¿ïW
@@ -137,12 +143,12 @@ static Sflt32 afParaLight[XYZW];						//	ïΩçsåıåπÉxÉNÉgÉã
 static Sflt32 afMatrixStack[Z3dMatrixMax][XYZW][XYZW];	//	çsóÒÉXÉ^ÉbÉN
 
 static ModelInfo asModelInfo[Z3dModelMax];				//	ñÕå^èÓïÒ
-static Uint32 aiModelStorage[ModelStorageMax];			//	ñÕå^äiî[óÃàÊ
+static Uint32 aiModelStorage[ModelStorageMax];			//	äiî[óÃàÊ
 
 static Uint08 aiCalcDepthSort[Z3dPolygonMax];			//	ââéZóÃàÊÅiâúçsêÆóÒÅj
 static Sflt32 afCalcVertex[Z3dVertexMax][XYZW];			//	ââéZóÃàÊÅiñÕå^í∏ì_Åj
 
-static MaterialInfo asCalcMaterial[Z3dPolygonMax];		//	ââéZóÃàÊÅiëΩäpçﬁéøÅj
+static DistanceInfo asCalcDistance[Z3dPolygonMax];		//	ââéZóÃàÊÅiãóó£èÓïÒÅj
 static TriangleInfo asCalcTriangle[Z3dPolygonMax];		//	ââéZóÃàÊÅiéOäpèÓïÒÅj
 #endif
 //------------------------------------------------------------------------------//
@@ -150,12 +156,12 @@ static TriangleInfo asCalcTriangle[Z3dPolygonMax];		//	ââéZóÃàÊÅiéOäpèÓïÒÅj
 static Sflt32 afMatrixStack[1][XYZW][XYZW];				//	çsóÒÉXÉ^ÉbÉN
 
 static ModelInfo asModelInfo[1];						//	ñÕå^èÓïÒ
-static Uint32 aiModelStorage[1];						//	ñÕå^äiî[óÃàÊ
+static Uint32 aiModelStorage[1];						//	äiî[óÃàÊ
 
 static Uint08 aiCalcDepthSort[1];						//	ââéZóÃàÊÅiâúçsêÆóÒÅj
 static Sflt32 afCalcVertex[1][XYZW];					//	ââéZóÃàÊÅiñÕå^í∏ì_Åj
 
-static MaterialInfo asCalcMaterial[1];					//	ââéZóÃàÊÅiëΩäpçﬁéøÅj
+static DistanceInfo asCalcDistance[1];					//	ââéZóÃàÊÅiãóó£èÓïÒÅj
 static TriangleInfo asCalcTriangle[1];					//	ââéZóÃàÊÅiéOäpèÓïÒÅj
 #endif
 //==============================================================================//
@@ -383,25 +389,45 @@ static void MatrixClear(void) {
 }
 //------------------------------------------------------------------------------//
 static void MatrixBuild(Uint08 iModel) {
-	Uint08 iVertex, iPolygon;
+	Uint08 iMaterial, iVertex, iPolygon;
 	Uint16 iStorage = iCurrZ3dStorage;
 	ModelInfo* pModel = &(asModelInfo[iCurrZ3dModel = iModel]);
 
-	pModel->ModelHead.Internal.iVertexCount  = iVertex  = (Uint08)(aiCoordinate[X] & 0x00FF);
-	pModel->ModelHead.Internal.iPolygonCount = iPolygon = (Uint08)(aiCoordinate[Y] & 0x00FF);
-	pModel->ModelHead.Internal.iAttribute               = (Uint08)(aiCoordinate[Z] & 0x00FF);
+	pModel->ModelHead.Internal.iAttribute                 = (Uint08)(aiCoordinate[X] & 0x00FF);
+	pModel->ModelHead.Internal.iMaterialCount = iMaterial = (Uint08)(aiCoordinate[Y] & 0x00FF);
+
+	pModel->ModelHead.Internal.iVertexCount   = iVertex   = (Uint08)(aiCoordinate[Z] & 0x00FF);
+	pModel->ModelHead.Internal.iPolygonCount  = iPolygon  = (Uint08)(aiCoordinate[W] & 0x00FF);
 
 	pModel->pVertex   = (Sflt32(*)[XYZW])(&(aiModelStorage[iStorage]));
-	iStorage += (Uint16)iVertex  * XYZW;
+	iStorage += (Uint16)iVertex   * XYZW;
 
 	pModel->pNormal   = (Sflt32(*)[XYZW])(&(aiModelStorage[iStorage]));
-	iStorage += (Uint16)iPolygon * XYZW;
+	iStorage += (Uint16)iPolygon  * XYZW;
 
-	pModel->pPolyInfo =       (PolyInfo*)(&(aiModelStorage[iStorage]));
-	iStorage += (Uint16)iPolygon * (sizeof(PolyInfo) >> 2);
+	pModel->pMaterial =   (MaterialInfo*)(&(aiModelStorage[iStorage]));
+	iStorage += (Uint16)iMaterial * (sizeof(MaterialInfo) >> 2);
 
-	if((iVertex == 0)||(iPolygon == 0)||(iStorage > ModelStorageMax)) {		pModel->ModelHead.iExternal = 0;	}
-	else {	iCurrZ3dStorage = iStorage;		pModel->ModelHead.Internal.iAllocate = True;	}
+	pModel->pPolygon  =   ( PolygonInfo*)(&(aiModelStorage[iStorage]));
+	iStorage += (Uint16)iPolygon  * (sizeof( PolygonInfo) >> 2);
+
+	if((iMaterial == 0)||(iVertex == 0)||(iPolygon == 0)||(iStorage > ModelStorageMax)) {
+		pModel->ModelHead.iExternal = 0;
+	} else iCurrZ3dStorage = iStorage;
+}
+//------------------------------------------------------------------------------//
+static void MatrixChange(Uint08 iModel) {
+	iCurrZ3dModel = iModel;
+}
+//------------------------------------------------------------------------------//
+static void MatrixMaterial(Uint08 iMaterial) {
+	Sint08 i;
+	ModelInfo* pModel = &(asModelInfo[iCurrZ3dModel]);
+	MaterialInfo* pMaterial = pModel->pMaterial + iMaterial;
+
+	if(iMaterial < pModel->ModelHead.Internal.iMaterialCount) {
+		for(i = X;i < XYZ;i++) pMaterial->aiColor[i] = (Uint08)(aiCoordinate[i] & 0x00FF);
+	}
 }
 //------------------------------------------------------------------------------//
 static void MatrixVertex(Uint08 iVertex) {
@@ -414,13 +440,17 @@ static void MatrixVertex(Uint08 iVertex) {
 }
 //------------------------------------------------------------------------------//
 static void MatrixPolygon(Uint08 iPolygon) {
-	Sint08 i, j;
+	Sint08 i;
 	ModelInfo* pModel = &(asModelInfo[iCurrZ3dModel]);
+	PolygonInfo* pPolygon = pModel->pPolygon + iPolygon;
 	Sflt32* apPos[XYZ];
 
 	if(iPolygon < pModel->ModelHead.Internal.iPolygonCount) {
-		for(i = X;i < XYZW;i++) ((Sfix88*)(pModel->pPolyInfo + iPolygon))[i] = aiCoordinate[i];
-		for(j = X;j < XYZ;j++) apPos[j] = pModel->pVertex[pModel->pPolyInfo[iPolygon].aiVertex[j]];
+		for(i = X;i < XYZ;i++) {
+			apPos[i] = pModel->pVertex[pPolygon->aiVertex[i] = (Uint08)(aiCoordinate[i] & 0x00FF)];
+		}
+
+		pPolygon->iMaterial = (Uint08)(aiCoordinate[W] & 0x00FF);
 
 		MatrixPosCross(pModel->pNormal[iPolygon], apPos);
 		MatrixVecUnit(pModel->pNormal[iPolygon]);
@@ -447,29 +477,32 @@ static void MatrixEntry(Uint08 iModel) {
 static void MatrixShade(Uint08 iModel) {
 	Sint16 i, j;
 	ModelInfo* pModel = &(asModelInfo[iCurrZ3dModel = iModel]);
+	PolygonInfo* pPolygon = pModel->pPolygon;
+	MaterialInfo* pMaterial;
 	Sflt32 (* pMat)[XYZW] = afMatrixStack[iCurrZ3dMatrix];
-	Sflt32 fInr, afVec[XYZW];
+	Sflt32 fInr, afVec[XYZ];
 
-	for(i = 0;i < pModel->ModelHead.Internal.iPolygonCount;i++) {
-		for(j = X;j < XYZW;j++) {
+	for(i = 0;i < pModel->ModelHead.Internal.iPolygonCount;i++, pPolygon++) {
+		for(j = X;j < XYZ;j++) {
 			afVec[j] =	pModel->pNormal[i][X] * pMat[X][j] + pModel->pNormal[i][Y] * pMat[Y][j] +
 						pModel->pNormal[i][Z] * pMat[Z][j];
 		}
 
 		MatrixVecInner(&fInr, afVec, afParaLight);
+		pMaterial = pModel->pMaterial + pPolygon->iMaterial;
 
 		if(fInr < 0)	fInr = fAmbiLight;
 		else			fInr = fAmbiLight + fDiffLight * fInr;
 
 		for(j = X;j < XYZ;j++) {
-			asCalcMaterial[i].aiMaterial[j] = (Uint08)((Sflt32)(pModel->pPolyInfo[i].aiMaterial[j]) * fInr);
+			asCalcDistance[i].aiColor[j] = (Uint08)((Sflt32)(pMaterial->aiColor[j]) * fInr);
 		}
 	}
 }
 //------------------------------------------------------------------------------//
 static int MatrixCompare(const void* pDSL, const void* pDSR) {
-	Sflt32 fPCL = asCalcMaterial[*(Uint08*)pDSL].fCenter;
-	Sflt32 fPCR = asCalcMaterial[*(Uint08*)pDSR].fCenter;
+	Sflt32 fPCL = asCalcDistance[*(Uint08*)pDSL].fCenter;
+	Sflt32 fPCR = asCalcDistance[*(Uint08*)pDSR].fCenter;
 
 	return((fPCL < fPCR) - (fPCL > fPCR));
 }
@@ -477,17 +510,18 @@ static int MatrixCompare(const void* pDSL, const void* pDSR) {
 static void MatrixDraw(void) {
 	Sint16 i, j, iCount;
 	ModelInfo* pModel = &(asModelInfo[iCurrZ3dModel]);
+	PolygonInfo* pPolygon = pModel->pPolygon;
 	Uint08 iBackJudge = pModel->ModelHead.Internal.iAttribute & MdlAttrBackJudge;
 	Uint08 iDepthSort = pModel->ModelHead.Internal.iAttribute & MdlAttrDepthSort;
 	Sflt32 afCrs[XYZW], * apPos[XYZ];
 
-	for(i = 0;i < pModel->ModelHead.Internal.iPolygonCount;i++) {
+	for(i = 0;i < pModel->ModelHead.Internal.iPolygonCount;i++, pPolygon++) {
 		aiCalcDepthSort[i] = i;
 
 		if(iDepthSort != False) {
-			asCalcMaterial[i].fCenter  = afCalcVertex[pModel->pPolyInfo[i].aiVertex[X]][Z];
-			asCalcMaterial[i].fCenter += afCalcVertex[pModel->pPolyInfo[i].aiVertex[Y]][Z];
-			asCalcMaterial[i].fCenter += afCalcVertex[pModel->pPolyInfo[i].aiVertex[Z]][Z];
+			asCalcDistance[i].fCenter  = afCalcVertex[pPolygon->aiVertex[X]][Z];
+			asCalcDistance[i].fCenter += afCalcVertex[pPolygon->aiVertex[Y]][Z];
+			asCalcDistance[i].fCenter += afCalcVertex[pPolygon->aiVertex[Z]][Z];
 		}
 	}
 
@@ -496,9 +530,11 @@ static void MatrixDraw(void) {
 	}
 
 	for(iCount = i = 0;i < pModel->ModelHead.Internal.iPolygonCount;i++) {
-		apPos[X] = afCalcVertex[pModel->pPolyInfo[aiCalcDepthSort[i]].aiVertex[X]];
-		apPos[Y] = afCalcVertex[pModel->pPolyInfo[aiCalcDepthSort[i]].aiVertex[Z]];		//	Yé≤îΩì]çœÅiÉfÉoÉCÉXç¿ïWånÅj
-		apPos[Z] = afCalcVertex[pModel->pPolyInfo[aiCalcDepthSort[i]].aiVertex[Y]];		//	Yé≤îΩì]çœÅiÉfÉoÉCÉXç¿ïWånÅj
+		pPolygon = pModel->pPolygon + aiCalcDepthSort[i];
+
+		apPos[X] = afCalcVertex[pPolygon->aiVertex[X]];
+		apPos[Y] = afCalcVertex[pPolygon->aiVertex[Z]];		//	Yé≤îΩì]çœÅiÉfÉoÉCÉXç¿ïWånÅj
+		apPos[Z] = afCalcVertex[pPolygon->aiVertex[Y]];		//	Yé≤îΩì]çœÅiÉfÉoÉCÉXç¿ïWånÅj
 
 		if((apPos[X][Z] < 0.0)||(apPos[X][Z] > 2.0)) continue;
 		if((apPos[Y][Z] < 0.0)||(apPos[X][Z] > 2.0)) continue;
@@ -514,7 +550,7 @@ static void MatrixDraw(void) {
 			asCalcTriangle[iCount].aiPos[j][Y] = (Sint16)apPos[j][Y];
 		}
 
-		asCalcTriangle[iCount++].iColor = *((Uint32*)(asCalcMaterial[aiCalcDepthSort[i]].aiMaterial));
+		asCalcTriangle[iCount++].iColor = *((Uint32*)(asCalcDistance[aiCalcDepthSort[i]].aiColor));
 	}
 
 	if(iCount > 0) {
@@ -673,6 +709,16 @@ static void Z3dApiMdlBuild(void) {
 	iCurrZ3dProc = Z3dProcStandBy;
 }
 //------------------------------------------------------------------------------//
+static void Z3dApiMdlChange(void) {
+	MatrixChange(iPioDataBus);
+	iCurrZ3dProc = Z3dProcStandBy;
+}
+//------------------------------------------------------------------------------//
+static void Z3dApiMdlMate(void) {
+	MatrixMaterial(iPioDataBus);
+	iCurrZ3dProc = Z3dProcStandBy;
+}
+//------------------------------------------------------------------------------//
 static void Z3dApiMdlVertex(void) {
 	MatrixVertex(iPioDataBus);
 	iCurrZ3dProc = Z3dProcStandBy;
@@ -759,8 +805,8 @@ static void (* apZ3dApiProc[Z3dProcMax])(void) = {
 	Z3dApiMatRotX  ,	Z3dApiMatRotY  ,	Z3dApiMatRotZ  ,	Z3dApiMatMulti ,
 	Z3dApiMatTrans ,	Z3dApiMatScale ,	Z3dApiMatDevice,	Z3dApiMatPers  ,
 
-	Z3dApiMdlClear ,	Z3dApiMdlBuild ,	Z3dApiMdlVertex,	Z3dApiMdlPoly  ,
-	Z3dApiMdlEntry ,	Z3dApiMdlShade ,
+	Z3dApiMdlClear ,	Z3dApiMdlBuild ,	Z3dApiMdlChange,	Z3dApiMdlMate  ,
+	Z3dApiMdlVertex,	Z3dApiMdlPoly  ,	Z3dApiMdlEntry ,	Z3dApiMdlShade ,
 
 	Z3dApiVectorXL ,	Z3dApiVectorXH ,	Z3dApiVectorYL ,	Z3dApiVectorYH ,
 	Z3dApiVectorZL ,	Z3dApiVectorZH ,	Z3dApiVectorWL ,	Z3dApiVectorWH ,
