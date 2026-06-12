@@ -38,7 +38,7 @@
 		</TD><TD>
 			<IMG SRC="https://crystalpalace.web.fc2.com/specific/lcdslogo.png" ALT="起動ロゴ画面" WIDTH="480">
 		</TD><TD ROWSPAN="3">
-			<IMG SRC="https://crystalpalace.web.fc2.com/instruct/helptext.png" ALT="HelpText" WIDTH="480">
+			<IMG SRC="https://crystalpalace.web.fc2.com/instruct/helptext00.png" ALT="HelpText" WIDTH="480">
 		</TD></TR>
 		<TR><TD>
 			<IMG SRC="https://crystalpalace.web.fc2.com/document/z80mobile.jpg" ALT="Z80モバイル環境" WIDTH="480">
