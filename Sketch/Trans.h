@@ -38,6 +38,7 @@
 //------------------------------------------------------------------------------//
 static void RecepData(Uint08);
 static void TransMessage(Cint08*);
+
 static void TransControl(Uint08);
 //==============================================================================//
 
@@ -60,15 +61,17 @@ static Cint08* apAssignHelpText[] = {					//	ヘルプ画面テキスト
 	"| C+S | Message Display       | C+W | CPU Clock  32[ Hz]    |",
 	"| C+D | CPU RD/WR History     | C+E | CPU Clock 256[ Hz]    |",
 	"| C+F | Execution Cycle       | C+R | CPU Clock   2[KHz]    |",
-	"+-----+-----------------------+ C+T | CPU Clock  16[KHz]    |",
-	"| C+G | LCD (Segment/Graphic) | C+Y | CPU Clock 128[KHz]    |",
-	"| C+V | Disable Ctrl Key      | C+U | CPU Clock   1[MHz]    |",
+	"| C+G | LCD (Segment/Graphic) | C+T | CPU Clock  16[KHz]    |",
+	"| C+K | Help (I/O Port/Ctrl)  | C+Y | CPU Clock 128[KHz]    |",
+	"| C+L | Clear Screen          | C+U | CPU Clock   1[MHz]    |",
 	"+-----+-----------------------+ C+I | CPU Clock   8[MHz]    |",
-	"| C+K | Help (I/O Port/Ctrl)  | C+O | CPU Clock  20[MHz]    |",
-	"| C+L | Clear Screen          | C+P | CPU Clock   0[_n_]    |",
+	"| C+Z | Star Logo             | C+O | CPU Clock  20[MHz]    |",
+	"| C+X | Screen Shot           | C+P | CPU Clock   0[_n_]    |",
 	"+-----+-----------------------+-----+-----------------------+",
-	"| C+3 | CPU Clock 2.5[MHz]    | C+5 | CPU Clock  10[MHz]    |",
-	"| C+4 | CPU Clock   4[MHz]    | C+6 | CPU Clock   6[MHz]    |",
+	"| C+V | Disable Ctrl Key      | C+3 | CPU Clock 2.5[MHz]    |",
+	"+-----+-----------------------+ C+4 | CPU Clock   4[MHz]    |",
+	"| C+B | Buzzer Melody Volume  | C+5 | CPU Clock  10[MHz]    |",
+	"| C+N | LCD LED Brightness    | C+6 | CPU Clock   6[MHz]    |",
 	"+-----+-----------------------+-----+-----------------------+",
 	"|                Peripheral I/O Port Assign                 |",
 	"+-----+-----------------------+-----+-----------------------+",
@@ -144,7 +147,7 @@ static Cint08* apAssignHelpText[] = {					//	ヘルプ画面テキスト
 
 
 //==============================================================================//
-static Cint08* pTransSysReset   = "CB[RST]";			//	システム再起動
+static Cint08* pTransSysResetEx = "CB[RST]";			//	システム再起動
 
 static Cint08* pTransMsgDispOff = "MS[OFF]";			//	メッセージ表示（オフ）
 static Cint08* pTransMsgDispOn  = "MS[ ON]";			//	メッセージ表示（オン）
@@ -155,14 +158,37 @@ static Cint08* pTransExeCyclOn  = "EC[ ON]";			//	CPU実行サイクル（オン）
 static Cint08* pTransLcdModeOff = "LC[OFF]";			//	液晶表示モード（オフ）
 static Cint08* pTransLcdModeOn  = "LC[ ON]";			//	液晶表示モード（オン）
 
+static Cint08* pTransStarLogoEx = "LC[SLG]";			//	液晶表示起動装飾
+static Cint08* pTransScrnShotEx = "LC[SST]";			//	液晶表示画面撮影
+
 static Cint08* pTransCtrlKeyOff = "CK[OFF]";			//	制御キー操作（オフ）
 static Cint08* pTransCtrlKeyOn  = "CK[ ON]";			//	制御キー操作（オン）
 //------------------------------------------------------------------------------//
-static Cint08* apTransPioHist[4] = {					//	CPU入出力履歴
+static Cint08* apTransPioHistEx[4] = {					//	CPU入出力履歴
 	"--[A/N]",											//	CPU入出力履歴（任意データ）
 	"-M[MEM]",											//	CPU入出力履歴（MREQを表示）
 	"P-[PIO]",											//	CPU入出力履歴（IORQを表示）
 	"PM[P&M]",											//	CPU入出力履歴（MREQ・IORQ）
+};
+//------------------------------------------------------------------------------//
+static Cint08* apTransMelVolumeEx[5] = {				//	旋律♪音量
+	"BV[MIN]",											//	旋律♪音量（最小）
+	"BV[25%]",											//	旋律♪音量（ 25%）
+	"BV[50%]",											//	旋律♪音量（ 50%）
+	"BV[75%]",											//	旋律♪音量（ 75%）
+	"BV[MAX]",											//	旋律♪音量（最大）
+};
+//------------------------------------------------------------------------------//
+static Cint08* apTransLedBrightEx[5] = {				//	液晶表示LED輝度
+	"LC[MIN]",											//	液晶表示LED輝度（最小）
+	"LC[25%]",											//	液晶表示LED輝度（ 25%）
+	"LC[50%]",											//	液晶表示LED輝度（ 50%）
+	"LC[75%]",											//	液晶表示LED輝度（ 75%）
+	"LC[MAX]",											//	液晶表示LED輝度（最大）
+};
+//------------------------------------------------------------------------------//
+static Uint08 aiTransVolumeValue[5] = {					//	可変数量設定値
+	0x00,	0x40,	0x80,	0xC0,	0xFF,
 };
 //==============================================================================//
 
@@ -230,7 +256,7 @@ static void TransChangeHist(Uint08 iPioHist) {
 	Uint08 iCurrHist;	PioHistWrite(iPioHist);
 
 	if((iCurrHist = PioHistRead()) == iPrevHist) return;
-	TransMessage(apTransPioHist[iCurrHist]);
+	TransMessage(apTransPioHistEx[iCurrHist]);
 
 	if((iPrevHist != 0)&&(iCurrHist == 0)) {
 		iPioHistD01 = iAnyNumDt01;	iPioHistD02 = iAnyNumDt02;
@@ -270,11 +296,6 @@ static void TransLcdMode(void) {
 	else						{	LcdModeHigh();	TransMessage(pTransLcdModeOn);	}
 }
 //------------------------------------------------------------------------------//
-static void TransCtrlKey(void) {
-	if(CtrlKeyRead() != False)	{	TransMessage(pTransCtrlKeyOff);		CtrlKeyLow();	}
-	else						{	CtrlKeyHigh();	TransMessage(pTransCtrlKeyOn);	}
-}
-//------------------------------------------------------------------------------//
 static void TransHelpText(void) {
 	if(iHelpTextCount == 0xFF) iHelpTextCount = 0x00;
 }
@@ -282,20 +303,62 @@ static void TransHelpText(void) {
 static void TransClrScrn(void) {
 	TransString(pEscSeqClrScrn);
 }
+//------------------------------------------------------------------------------//
+static void TransLcdStarLogo(void) {
+	TransMessage(pTransStarLogoEx);
+	if((Esp32Slave)&&(LcdModeGraphic)) SpiLcdStarLogo();
+}
+//------------------------------------------------------------------------------//
+static void TransLcdScrnShot(void) {
+	TransMessage(pTransScrnShotEx);
+	if(Esp32Slave) SpiLcdScrnShot();
+}
+//------------------------------------------------------------------------------//
+static void TransCtrlKey(void) {
+	if(CtrlKeyRead() != False)	{	TransMessage(pTransCtrlKeyOff);		CtrlKeyLow();	}
+	else						{	CtrlKeyHigh();	TransMessage(pTransCtrlKeyOn);	}
+}
+//------------------------------------------------------------------------------//
+static void TransMelVolume(void) {
+	Sint08 i;
+
+	for(iCurrMelVolume++, i = 0;i < 5;i++) {
+		if(iCurrMelVolume <= aiTransVolumeValue[i]) {
+			iCurrMelVolume = aiTransVolumeValue[i];		break;
+		}
+	}
+
+
+	TransMessage(apTransMelVolumeEx[i]);
+	ClockMelody(iCurrMelNote, iCurrMelVolume);
+}
+//------------------------------------------------------------------------------//
+static void TransLcdLedBright(void) {
+	Sint08 i;
+
+	for(iLcdBrightness++, i = 0;i < 5;i++) {
+		if(iLcdBrightness <= aiTransVolumeValue[i]) {
+			iLcdBrightness = aiTransVolumeValue[i];		break;
+		}
+	}
+
+	TransMessage(apTransLedBrightEx[i]);
+	if(Esp32Slave) SpiLCD.setBrightness(iLcdBrightness);
+}
 //==============================================================================//
 
 
 //==============================================================================//
 static void (* apSerialCtrl[SP])(void) = {
-	NULL         ,	TransSysReset,	NULL         ,	NULL         ,
-	TransPioHist ,	Clock256iHz  ,	TransExeCycl ,	TransLcdMode ,
-	NULL         ,	Clock008MHz  ,	NULL         ,	TransHelpText,
-	TransClrScrn ,	NULL         ,	NULL         ,	Clock020MHz  ,
+	NULL             ,	TransSysReset    ,	TransMelVolume   ,	NULL             ,
+	TransPioHist     ,	ClockCtrl256iHz  ,	TransExeCycl     ,	TransLcdMode     ,
+	NULL             ,	ClockCtrl008MHz  ,	NULL             ,	TransHelpText    ,
+	TransClrScrn     ,	NULL             ,	TransLcdLedBright,	ClockCtrl020MHz  ,
 
-	Clock000iHz  ,	Clock004iHz  ,	Clock002KHz  ,	TransMsgDisp ,
-	Clock016KHz  ,	Clock001MHz  ,	TransCtrlKey ,	Clock032iHz  ,
-	NULL         ,	Clock128KHz  ,	NULL         ,	Clock2p5MHz  ,
-	Clock004MHz  ,	Clock010MHz  ,	Clock006MHz  ,	NULL         ,
+	ClockCtrl000iHz  ,	ClockCtrl004iHz  ,	ClockCtrl002KHz  ,	TransMsgDisp     ,
+	ClockCtrl016KHz  ,	ClockCtrl001MHz  ,	TransCtrlKey     ,	ClockCtrl032iHz  ,
+	TransLcdScrnShot ,	ClockCtrl128KHz  ,	TransLcdStarLogo ,	ClockCtrl2p5MHz  ,
+	ClockCtrl004MHz  ,	ClockCtrl010MHz  ,	ClockCtrl006MHz  ,	NULL             ,
 };
 //------------------------------------------------------------------------------//
 static void TransControl(Uint08 iData) {

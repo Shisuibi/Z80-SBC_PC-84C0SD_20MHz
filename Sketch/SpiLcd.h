@@ -31,6 +31,11 @@
 //------------------------------------------------------------------------------//
 #define		LcdModeGraphic	(iCurrLcdMode == False)		//	液晶表示モード（グラフィック）
 #define		LcdModeSegment	(iCurrLcdMode != False)		//	液晶表示モード（セグメント）
+//------------------------------------------------------------------------------//
+static void SpiLcdStarLogo(void);
+static void SpiLcdScrnShot(void);
+
+static void SpiLcdInit(Sint08);
 //==============================================================================//
 
 
@@ -38,23 +43,6 @@
 #endif
 //------------------------------------------------------------------------------//
 #ifdef		LowerDefinition
-//==============================================================================//
-
-
-//==============================================================================//
-static Sint08 iCurrLcdMode;								//	現行液晶表示モード
-static Uint08 iLcdBrightness;							//	液晶表示LED輝度
-//------------------------------------------------------------------------------//
-static Uint08 iLcdRotation;								//	液晶表示回転方向
-static Uint08 iLcdTextSize;								//	液晶表示文章寸法
-
-static Uint16 iLcdRgbC0, iLcdRgbC1;						//	液晶表示色彩C0C1
-
-static Sint16 iLcdPosX0, iLcdPosY0;						//	液晶表示座標X0Y0
-static Sint16 iLcdPosX1, iLcdPosY1;						//	液晶表示座標X1Y1
-
-static Sint16 iLcdDisX2, iLcdDisY2;						//	液晶表示変位X2Y2
-static Sint16 iLcdRadX3, iLcdRadY3;						//	液晶表示半径X3Y3
 //==============================================================================//
 
 

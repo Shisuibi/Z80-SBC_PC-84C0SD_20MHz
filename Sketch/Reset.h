@@ -57,6 +57,7 @@ static void ResetGpio(Sint08 iReset) {
 		CpuIntHigh();	CpuNmiHigh();	PioWitLow();	RamChpLow();
 		CpuWitHigh();	CpuRstHigh();	BusReqLow();
 
+		ClockMelody(0x00, 0x80);
 		NeoPixWrite(0x00, 0x00, 0x00);
 	} else {
 		if(iReset == False) {
@@ -139,7 +140,7 @@ static void ResetMove(void) {
 	SpiLcdInit(True);
 
 	if(Esp32Master) ResetExec();
-	TransMessage(pTransSysReset);
+	TransMessage(pTransSysResetEx);
 
 	iResetRequest = ResetModeStandBy;
 }

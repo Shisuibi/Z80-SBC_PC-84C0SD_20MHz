@@ -748,13 +748,18 @@
 ★キー操作＆システムメッセージ
 
 　Ctrl＋A　｜　システム再起動　"CB[RST]"
-　Ctrl＋S　｜　メッセージ表示　"MS[ ON]"　"MS[OFF]"
+　Ctrl＋S　｜　メッセージ表示　"MS[OFF]"　"MS[ ON]"
 　Ctrl＋D　｜　CPU入出力履歴　"--[A/N]"　"-M[MEM]"　"P-[PIO]"　"PM[P&M]"
-　Ctrl＋F　｜　CPU実行サイクル　"EC[ ON]"　"EC[OFF]"
-　Ctrl＋G　｜　液晶表示モード　"LC[ ON]"　"LC[OFF]"
-　Ctrl＋V　｜　制御キー操作の有効／無効（システム再起動は除く）
+　Ctrl＋F　｜　CPU実行サイクル　"EC[OFF]"　"EC[ ON]"
+　Ctrl＋G　｜　液晶表示モード　"LC[OFF]"　"LC[ ON]"
 　Ctrl＋K　｜　ヘルプ画面表示（キー操作／入出力ポート）
 　Ctrl＋L　｜　テキスト画面消去
+
+　Ctrl＋Z　｜　液晶表示起動装飾　"LC[SLG]"
+　Ctrl＋X　｜　液晶表示画面撮影　"LC[SST]"
+　Ctrl＋V　｜　制御キー操作の有効／無効（システム再起動は除く）　"CK[OFF]"　"CK[ ON]"
+　Ctrl＋B　｜　旋律♪音量　"BV[MIN]"　"BV[25%]"　"BV[50%]"　"BV[75%]"　"BV[MAX]"
+　Ctrl＋N　｜　液晶表示LED輝度　"LC[MIN]"　"LC[25%]"　"LC[50%]"　"LC[75%]"　"LC[MAX]"
 
 　Ctrl＋Q　｜　発振φ（　4[ Hz]）　"　4[ Hz]"
 　Ctrl＋W　｜　発振φ（ 32[ Hz]）　" 32[ Hz]"

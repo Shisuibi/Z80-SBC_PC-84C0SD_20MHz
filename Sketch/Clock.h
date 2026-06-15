@@ -143,59 +143,59 @@ static void ClockControl(Sint08 iClkMode) {
 	}
 }
 //------------------------------------------------------------------------------//
-static void Clock000iHz(void) {
+static void ClockCtrl000iHz(void) {
 	ClockControl(ClockMode000iHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock004iHz(void) {
+static void ClockCtrl004iHz(void) {
 	ClockControl(ClockMode004iHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock032iHz(void) {
+static void ClockCtrl032iHz(void) {
 	ClockControl(ClockMode032iHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock256iHz(void) {
+static void ClockCtrl256iHz(void) {
 	ClockControl(ClockMode256iHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock002KHz(void) {
+static void ClockCtrl002KHz(void) {
 	ClockControl(ClockMode002KHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock016KHz(void) {
+static void ClockCtrl016KHz(void) {
 	ClockControl(ClockMode016KHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock128KHz(void) {
+static void ClockCtrl128KHz(void) {
 	ClockControl(ClockMode128KHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock001MHz(void) {
+static void ClockCtrl001MHz(void) {
 	ClockControl(ClockMode001MHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock2p5MHz(void) {
+static void ClockCtrl2p5MHz(void) {
 	ClockControl(ClockMode2p5MHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock004MHz(void) {
+static void ClockCtrl004MHz(void) {
 	ClockControl(ClockMode004MHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock006MHz(void) {
+static void ClockCtrl006MHz(void) {
 	ClockControl(ClockMode006MHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock008MHz(void) {
+static void ClockCtrl008MHz(void) {
 	ClockControl(ClockMode008MHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock010MHz(void) {
+static void ClockCtrl010MHz(void) {
 	ClockControl(ClockMode010MHz);
 }
 //------------------------------------------------------------------------------//
-static void Clock020MHz(void) {
+static void ClockCtrl020MHz(void) {
 	ClockControl(ClockMode020MHz);
 }
 //==============================================================================//

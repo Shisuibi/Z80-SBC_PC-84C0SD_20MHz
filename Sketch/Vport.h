@@ -111,13 +111,12 @@ static void VportMsgDisp(void) {
 //------------------------------------------------------------------------------//
 static void VportLcdStarLogo(void) {
 	if(PioInput) {	iPioDataBus = 0x00;		MultiCpuOutput();	}
-	if((Esp32Master)||(LcdModeSegment)) return;
-	SpiLcdStarLogo();
+	TransLcdStarLogo();
 }
 //------------------------------------------------------------------------------//
 static void VportLcdScrnShot(void) {
 	if(PioInput) {	iPioDataBus = 0x00;		MultiCpuOutput();	}
-	if(Esp32Slave) SpiLcdScrnShot();
+	TransLcdScrnShot();
 }
 //------------------------------------------------------------------------------//
 static void VportCtrlKey(void) {
