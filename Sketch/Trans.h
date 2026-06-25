@@ -37,9 +37,12 @@
 					((iIndex) & (SerialBufSizeTx - 1))	//	シリアル緩衝マスク（送信）
 //------------------------------------------------------------------------------//
 static void RecepData(Uint08);
+static void TransString(Cint08*);
 static void TransMessage(Cint08*);
+static void TransMsgDisp(Cint08*);
 
 static void TransControl(Uint08);
+static void TransWrite(void);
 //==============================================================================//
 
 
@@ -95,6 +98,11 @@ static Cint08* apAssignHelpText[] = {					//	ヘルプ画面テキスト
 	"| 24H | CPU RD/WR History     | 34H | LCD (Segment/Graphic) |",
 	"| 25H | Execution Cycle       | 35H | LCD LED Brightness    |",
 	"| 26H | CPU Clock Mode        | 36H | SDC Read BASIC File   |",
+	"+-----+-----------------------+-----+-----------------------+",
+	"| 28H | Clock Reset (IN/OUT)  | 2CH | Clock Day (IN Only)   |",
+	"| 29H | Clock Sec (IN Only)   | 2DH | Clock Mon (IN Only)   |",
+	"| 2AH | Clock Min (IN Only)   | 2EH | Clock Year (IN Only)  |",
+	"| 2BH | Clock Hour (IN Only)  | 2FH | Clock Week (IN Only)  |",
 	"+-----+-----------------------+-----+-----------------------+",
 	"| 40H | LCD Rotation          | 48H | LCD Draw Pixel        |",
 	"| 41H | LCD Clear Screen      | 49H | LCD Draw Line         |",
@@ -243,11 +251,14 @@ static void TransString(Cint08* pString) {
 }
 //------------------------------------------------------------------------------//
 static void TransMessage(Cint08* pMessage) {
+	TransString(pMessage);
+	TransData(CR);	TransData(LF);
+}
+//------------------------------------------------------------------------------//
+static void TransMsgDisp(Cint08* pMessage) {
 	if(MsgDispRead() != False) {
 		TransString(pMessage);
-
-		TransData(CR);
-		TransData(LF);
+		TransData(CR);	TransData(LF);
 	}
 }
 //------------------------------------------------------------------------------//
@@ -256,7 +267,7 @@ static void TransChangeHist(Uint08 iPioHist) {
 	Uint08 iCurrHist;	PioHistWrite(iPioHist);
 
 	if((iCurrHist = PioHistRead()) == iPrevHist) return;
-	TransMessage(apTransPioHistEx[iCurrHist]);
+	TransMsgDisp(apTransPioHistEx[iCurrHist]);
 
 	if((iPrevHist != 0)&&(iCurrHist == 0)) {
 		iPioHistD01 = iAnyNumDt01;	iPioHistD02 = iAnyNumDt02;
@@ -278,8 +289,8 @@ static void TransSysReset(void) {
 }
 //------------------------------------------------------------------------------//
 static void TransMsgDisp(void) {
-	if(MsgDispRead() != False)	{	TransMessage(pTransMsgDispOff);		MsgDispLow();	}
-	else						{	MsgDispHigh();	TransMessage(pTransMsgDispOn);	}
+	if(MsgDispRead() != False)	{	TransMsgDisp(pTransMsgDispOff);		MsgDispLow();	}
+	else						{	MsgDispHigh();	TransMsgDisp(pTransMsgDispOn);	}
 }
 //------------------------------------------------------------------------------//
 static void TransPioHist(void) {
@@ -287,13 +298,13 @@ static void TransPioHist(void) {
 }
 //------------------------------------------------------------------------------//
 static void TransExeCycl(void) {
-	if(ExeCyclRead() != False)	{	TransMessage(pTransExeCyclOff);		ExeCyclLow();	}
-	else						{	ExeCyclHigh();	TransMessage(pTransExeCyclOn);	}
+	if(ExeCyclRead() != False)	{	TransMsgDisp(pTransExeCyclOff);		ExeCyclLow();	}
+	else						{	ExeCyclHigh();	TransMsgDisp(pTransExeCyclOn);	}
 }
 //------------------------------------------------------------------------------//
 static void TransLcdMode(void) {
-	if(LcdModeRead() != False)	{	TransMessage(pTransLcdModeOff);		LcdModeLow();	}
-	else						{	LcdModeHigh();	TransMessage(pTransLcdModeOn);	}
+	if(LcdModeRead() != False)	{	TransMsgDisp(pTransLcdModeOff);		LcdModeLow();	}
+	else						{	LcdModeHigh();	TransMsgDisp(pTransLcdModeOn);	}
 }
 //------------------------------------------------------------------------------//
 static void TransHelpText(void) {
@@ -305,18 +316,18 @@ static void TransClrScrn(void) {
 }
 //------------------------------------------------------------------------------//
 static void TransLcdStarLogo(void) {
-	TransMessage(pTransStarLogoEx);
+	TransMsgDisp(pTransStarLogoEx);
 	if((Esp32Slave)&&(LcdModeGraphic)) SpiLcdStarLogo();
 }
 //------------------------------------------------------------------------------//
 static void TransLcdScrnShot(void) {
-	TransMessage(pTransScrnShotEx);
+	TransMsgDisp(pTransScrnShotEx);
 	if(Esp32Slave) SpiLcdScrnShot();
 }
 //------------------------------------------------------------------------------//
 static void TransCtrlKey(void) {
-	if(CtrlKeyRead() != False)	{	TransMessage(pTransCtrlKeyOff);		CtrlKeyLow();	}
-	else						{	CtrlKeyHigh();	TransMessage(pTransCtrlKeyOn);	}
+	if(CtrlKeyRead() != False)	{	TransMsgDisp(pTransCtrlKeyOff);		CtrlKeyLow();	}
+	else						{	CtrlKeyHigh();	TransMsgDisp(pTransCtrlKeyOn);	}
 }
 //------------------------------------------------------------------------------//
 static void TransMelVolume(void) {
@@ -329,7 +340,7 @@ static void TransMelVolume(void) {
 	}
 
 
-	TransMessage(apTransMelVolumeEx[i]);
+	TransMsgDisp(apTransMelVolumeEx[i]);
 	ClockMelody(iCurrMelNote, iCurrMelVolume);
 }
 //------------------------------------------------------------------------------//
@@ -342,7 +353,7 @@ static void TransLcdLedBright(void) {
 		}
 	}
 
-	TransMessage(apTransLedBrightEx[i]);
+	TransMsgDisp(apTransLedBrightEx[i]);
 	if(Esp32Slave) SpiLCD.setBrightness(iLcdBrightness);
 }
 //==============================================================================//
@@ -458,7 +469,7 @@ static void TransWrite(void) {
 	}
 
 	if((iHelpTextCount != 0xFF)&&(TransInterval() != False)) {
-		if(apAssignHelpText[iHelpTextCount] != NULL)	TransMessage(apAssignHelpText[iHelpTextCount++]);
+		if(apAssignHelpText[iHelpTextCount] != NULL)	TransMsgDisp(apAssignHelpText[iHelpTextCount++]);
 		else											iHelpTextCount = 0xFF;
 
 		iSerialMicros = micros();
@@ -484,9 +495,15 @@ static void TransInit(void) {
 	Serial.setRxBufferSize(SerialBufSizeRx);
 	Serial.setTxBufferSize(SerialBufSizeTx);
 	Serial.begin(SerialBaudRateTx, SERIAL_8N1, GpioUa0Rxd, GpioUa0Txd);
+	MultiFlush();
 
-	delay(100);		MultiFlush();	delay(100);
-	TransClear();	iBleAdvtReq = True;
+	TransClear();
+	iBleAdvtReq = True;
+
+#ifdef		BuildMaster
+	if(Esp32Master) ClockAdjust();
+#endif
+	ClockLocal();	ClockReset();
 
 	iSerialMicros = micros();
 #ifdef		BuildMaster

@@ -103,9 +103,9 @@ static void VportClrScrn(void) {
 static void VportMsgDisp(void) {
 	if(PioInput) iPioDataBus = MsgDispRead();
 	else {		if((iPioDataBus == False)&&(MsgDispRead() != False))
-			{	TransMessage(pTransMsgDispOff);		MsgDispLow();	}
+			{	TransMsgDisp(pTransMsgDispOff);		MsgDispLow();	}
 		else	if((iPioDataBus != False)&&(MsgDispRead() == False))
-			{	MsgDispHigh();	TransMessage(pTransMsgDispOn);	}
+			{	MsgDispHigh();	TransMsgDisp(pTransMsgDispOn);	}
 	}
 }
 //------------------------------------------------------------------------------//
@@ -122,9 +122,9 @@ static void VportLcdScrnShot(void) {
 static void VportCtrlKey(void) {
 	if(PioInput) iPioDataBus = CtrlKeyRead();
 	else {		if((iPioDataBus == False)&&(CtrlKeyRead() != False))
-			{	TransMessage(pTransCtrlKeyOff);		CtrlKeyLow();	}
+			{	TransMsgDisp(pTransCtrlKeyOff);		CtrlKeyLow();	}
 		else	if((iPioDataBus != False)&&(CtrlKeyRead() == False))
-			{	CtrlKeyHigh();	TransMessage(pTransCtrlKeyOn);	}
+			{	CtrlKeyHigh();	TransMsgDisp(pTransCtrlKeyOn);	}
 	}
 }
 //==============================================================================//
@@ -237,15 +237,48 @@ static void VportPioHist(void) {
 static void VportExeCycl(void) {
 	if(PioInput) iPioDataBus = ExeCyclRead();
 	else {		if((iPioDataBus == False)&&(ExeCyclRead() != False))
-			{	TransMessage(pTransExeCyclOff);		ExeCyclLow();	}
+			{	TransMsgDisp(pTransExeCyclOff);		ExeCyclLow();	}
 		else	if((iPioDataBus != False)&&(ExeCyclRead() == False))
-			{	ExeCyclHigh();	TransMessage(pTransExeCyclOn);	}
+			{	ExeCyclHigh();	TransMsgDisp(pTransExeCyclOn);	}
 	}
 }
 //------------------------------------------------------------------------------//
 static void VportClkMode(void) {
 	if(PioInput) iPioDataBus = (Uint08)iCurrClkMode;
 	else {	if(iPioDataBus < ClockModeMax) ClockControl(iPioDataBus);	}
+}
+//------------------------------------------------------------------------------//
+static void VportClockReset(void) {
+	if(PioInput) {	iPioDataBus = 0x00;		MultiCpuOutput();	}
+	ClockReset();
+}
+//------------------------------------------------------------------------------//
+static void VportClockSec(void) {
+	if(PioInput) iPioDataBus = iClockSec;
+}
+//------------------------------------------------------------------------------//
+static void VportClockMin(void) {
+	if(PioInput) iPioDataBus = iClockMin;
+}
+//------------------------------------------------------------------------------//
+static void VportClockHour(void) {
+	if(PioInput) iPioDataBus = iClockHour;
+}
+//------------------------------------------------------------------------------//
+static void VportClockDay(void) {
+	if(PioInput) iPioDataBus = iClockDay;
+}
+//------------------------------------------------------------------------------//
+static void VportClockMon(void) {
+	if(PioInput) iPioDataBus = iClockMon;
+}
+//------------------------------------------------------------------------------//
+static void VportClockYear(void) {
+	if(PioInput) iPioDataBus = iClockYear;
+}
+//------------------------------------------------------------------------------//
+static void VportClockWeek(void) {
+	if(PioInput) iPioDataBus = iClockWeek;
 }
 //==============================================================================//
 
@@ -272,9 +305,9 @@ static void VportSdcBusy(void) {
 static void VportLcdMode(void) {
 	if(PioInput) iPioDataBus = LcdModeRead();
 	else {		if((iPioDataBus == False)&&(LcdModeRead() != False))
-			{	TransMessage(pTransLcdModeOff);		LcdModeLow();	}
+			{	TransMsgDisp(pTransLcdModeOff);		LcdModeLow();	}
 		else	if((iPioDataBus != False)&&(LcdModeRead() == False))
-			{	LcdModeHigh();	TransMessage(pTransLcdModeOn);	}
+			{	LcdModeHigh();	TransMsgDisp(pTransLcdModeOn);	}
 	}
 }
 //------------------------------------------------------------------------------//
@@ -791,8 +824,8 @@ static void (* apVportInOut[0x0100])(void) = {
 
 	VportAnyNum00    ,	VportAnyNum01    ,	VportAnyNum02    ,	VportAnyNum03    ,
 	VportPioHist     ,	VportExeCycl     ,	VportClkMode     ,	VportInOutNop    ,
-	VportInOutNop    ,	VportInOutNop    ,	VportInOutNop    ,	VportInOutNop    ,
-	VportInOutNop    ,	VportInOutNop    ,	VportInOutNop    ,	VportInOutNop    ,
+	VportClockReset  ,	VportClockSec    ,	VportClockMin    ,	VportClockHour   ,
+	VportClockDay    ,	VportClockMon    ,	VportClockYear   ,	VportClockWeek   ,
 
 	VportUartCtrl    ,	VportUartData    ,	VportBleUart     ,	VportSdcBusy     ,
 	VportLcdMode     ,	VportLcdLedBright,	VportBasicFile   ,	VportInOutNop    ,

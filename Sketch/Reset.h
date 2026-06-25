@@ -140,7 +140,7 @@ static void ResetMove(void) {
 	SpiLcdInit(True);
 
 	if(Esp32Master) ResetExec();
-	TransMessage(pTransSysResetEx);
+	TransMsgDisp(pTransSysResetEx);
 
 	iResetRequest = ResetModeStandBy;
 }

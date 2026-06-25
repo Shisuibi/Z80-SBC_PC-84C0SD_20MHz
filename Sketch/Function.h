@@ -126,7 +126,10 @@ enum {
 	GpioCtpInt	=	GpioCpuWit,		GpioLcdRst,		GpioBuzTon,
 };
 //------------------------------------------------------------------------------//
+#define		CpuClkInput()				{	pinMode(GpioCpuClk, INPUT_PULLUP);	}
 #define		CpuClkOutput()				{	pinMode(GpioCpuClk, OUTPUT);	}
+
+#define		CpuClkRead()				(	digitalRead(GpioCpuClk)		)
 
 #define		CpuClkLow()					{	digitalWrite(GpioCpuClk, LOW );		}
 #define		CpuClkHigh()				{	digitalWrite(GpioCpuClk, HIGH);		}
@@ -336,6 +339,18 @@ enum {
 
 
 //==============================================================================//
+//	初回Wi-Fi接続時だけ設定
+//	This setting is only required the first time you connect to Wi-Fi
+//------------------------------------------------------------------------------//
+//	#define	 	WiFiSSIDPSWD			"SSID", "PSWD"	//	Wi-Fi識別子・パスワード
+//------------------------------------------------------------------------------//
+//	【注意】技適マークが無い無線機器を日本国内で使用すると電波法違反になる場合があります
+//	[Caution] Using wireless devices without a Technical Conformity Mark in Japan may be a violation of the Radio Law
+//==============================================================================//
+
+
+//==============================================================================//
+static Uint08 aiStringBuf[StringSizeL];					//	文字列緩衝
 static Sint08 iResetRequest;							//	リセット要求
 //------------------------------------------------------------------------------//
 static Uint08 iCpmBiosParamL;							//	BIOS引数下位

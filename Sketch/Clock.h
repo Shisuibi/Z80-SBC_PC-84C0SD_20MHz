@@ -92,6 +92,31 @@ static Uint16 aiMelodyTone[MelodyOctaveMax][MelodyScaleMax] = {		//	旋律♪音階
 //------------------------------------------------------------------------------//
 static Uint08 iCurrMelNote;								//	現行旋律♪音符
 static Uint08 iCurrMelVolume;							//	現行旋律♪音量
+//==============================================================================//
+
+
+//==============================================================================//
+static Cint08* pClockAdjustWiFi = "WiFi |";				//	時刻調整（WiFi接続）
+static Cint08* pClockAdjustNICT = "NICT |";				//	時刻調整（NICT接続）
+
+static Cint08* pClockAdjustExec = "o";					//	時刻調整（接続実行）
+static Cint08* pClockAdjustDone = "| Done";				//	時刻調整（接続完了）
+
+static Cint08* pClockAdjustCancel  = "| Cancel";		//	時刻調整（接続取消）
+static Cint08* pClockAdjustTimeout = "| Timeout";		//	時刻調整（接続打切）
+//------------------------------------------------------------------------------//
+static time_t iCurrTime;								//	現在時刻
+static struct tm TimeInfo;								//	時刻情報
+
+static Uint08 iClockSec;								//	ローカル時刻（秒）
+static Uint08 iClockMin;								//	ローカル時刻（分）
+static Uint08 iClockHour;								//	ローカル時刻（時）
+
+static Uint08 iClockDay;								//	ローカル時刻（日）
+static Uint08 iClockMon;								//	ローカル時刻（月）
+static Uint08 iClockYear;								//	ローカル時刻（年）
+
+static Uint08 iClockWeek;								//	ローカル時刻（曜）
 //------------------------------------------------------------------------------//
 static Uint32 iTimerMillis;								//	システム時刻ミリ秒
 
@@ -135,7 +160,7 @@ static void ClockChange(Sint08 iClkMode) {
 //==============================================================================//
 static void ClockControl(Sint08 iClkMode) {
 	if((iClkMode == ClockMode000iHz)||(iClkMode != iCurrClkMode)) {
-		TransMessage(asClockInfo[iClkMode].pMessage);
+		TransMsgDisp(asClockInfo[iClkMode].pMessage);
 
 		if((iClkMode == ClockMode000iHz)&&(iCurrClkMode == ClockMode000iHz)) {
 			if(Esp32Master) ClockManual(100000);
@@ -228,6 +253,40 @@ static void ClockMelody(Uint08 iNote, Uint08 iVolume) {
 		}
 	}
 }
+//==============================================================================//
+
+
+//==============================================================================//
+static void ClockClear(void) {
+	iTimerMillis = millis();
+
+	iTimerCentis = iTimerSecond = 0;
+	iTimerMinute = iTimerHour24 = 0;
+}
+//------------------------------------------------------------------------------//
+static void ClockReset(void) {
+	iTimerMillis = millis();
+
+	iTimerCentis =         0;	iTimerSecond = iClockSec;
+	iTimerMinute = iClockMin;	iTimerHour24 = iClockHour;
+}
+//------------------------------------------------------------------------------//
+static void ClockLocal(void) {
+	time_t iPrevTime = iCurrTime;
+
+	if(time(&iCurrTime) == iPrevTime) return;
+	localtime_r(&iCurrTime, &TimeInfo);
+
+	iClockSec  = TimeInfo.tm_sec ;
+	iClockMin  = TimeInfo.tm_min ;
+	iClockHour = TimeInfo.tm_hour;
+
+	iClockDay  = TimeInfo.tm_mday;
+	iClockMon  = TimeInfo.tm_mon ;
+	iClockYear = TimeInfo.tm_year;
+
+	iClockWeek = TimeInfo.tm_wday;
+}
 //------------------------------------------------------------------------------//
 static void ClockTimer(void) {
 	Uint32 iMillis = millis() - iTimerMillis;
@@ -252,19 +311,64 @@ static void ClockTimer(void) {
 
 
 //==============================================================================//
+static Sint08 ClockRotate(Uint08 iDigit) {
+	TransWrite();	delay(1000);
+	ClockTimer();
+
+	if(CpuClkRead() == False) {
+		while(CpuClkRead() == False);
+		TransMessage(pClockAdjustCancel);	return(True);
+	}
+
+	if(iTimerMinute > 0) {
+		TransMessage(pClockAdjustTimeout);	return(True);
+	}
+
+	return(False);
+}
+//------------------------------------------------------------------------------//
+static void ClockAdjust(void) {
+	TransMessage("Attempting time adjustment");
+
+#ifdef		WiFiSSIDPSWD
+	WiFi.begin(WiFiSSIDPSWD);
+#else
+	WiFi.begin();
+#endif
+	CpuClkInput();
+
+	for(TransString(pClockAdjustWiFi);WiFi.status() != WL_CONNECTED;TransString(pClockAdjustExec)) {
+		if(ClockRotate(X) != False) {	WiFi.disconnect(True);	return;		}
+	}
+
+	TransMessage(pClockAdjustDone);
+
+	for(TransString(pClockAdjustNICT);!getLocalTime(&TimeInfo, 100);TransString(pClockAdjustExec)) {
+		if(ClockRotate(Z) != False) {	WiFi.disconnect(True);	return;		}
+	}
+
+	TransMessage(pClockAdjustDone);
+
+	CpuClkOutput();
+	WiFi.disconnect(True);
+
+	strftime((char*)aiStringBuf, StringSizeL, "%Y/%m/%d %a %H:%M:%S", &TimeInfo);
+	TransMessage((Cint08*)aiStringBuf);
+}
+//==============================================================================//
+
+
+//==============================================================================//
 static void ClockInit(void) {
 	iCurrClkMode = ClockMode000iHz;
+	iCurrMelNote = 0x00;	iCurrMelVolume = 0x80;
 
-	iCurrMelNote = 0x00;
-	iCurrMelVolume = 0x80;
-
-	iTimerMillis = millis();
-
-	iTimerCentis = iTimerSecond = 0;
-	iTimerMinute = iTimerHour24 = 0;
+	iCurrTime = 0;	ClockClear();
+	configTzTime("JST-9", "ntp.nict.jp", "ntp.jst.mfeed.ad.jp");
 }
 //------------------------------------------------------------------------------//
 static void ClockMove(void) {
+	ClockLocal();
 	ClockTimer();
 }
 //==============================================================================//

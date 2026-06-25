@@ -58,11 +58,15 @@ static Uint08 aiSerialBufDx[SerialSegSizeTx];			//	シリアル緩衝（電文）
 
 //==============================================================================//
 static void MultiFlush(void) {
+	delay(100);
+
 	Serial .flush();
 	Serial1.flush();
 
 	while(Serial .available() > 0) Serial .read();
 	while(Serial1.available() > 0) Serial1.read();
+
+	delay(100);
 }
 //------------------------------------------------------------------------------//
 static void MultiData(Uint08 iData) {
@@ -220,6 +224,7 @@ static void MultiInit(void) {
 	Serial1.setTxBufferSize(SerialBufSizeTx);
 #endif
 	Serial1.begin(SerialBaudRateDx, SERIAL_8N1, GpioUa1Rxd, GpioUa1Txd);
+	MultiFlush();
 
 	NeoPixInput();	iMasterSlave = NeoPixRead();	iSynchWait = False;
 	iSerialCountMx = iSerialCountDx = 0;
@@ -230,7 +235,7 @@ static void MultiMove(void) {
 		MultiData(CodeTelSynchWait);
 		MultiWait(CodeTelSynchWait);
 
-		MultiFlush();	delay(100);
+		MultiFlush();
 		iResetRequest = ResetModeBootExec;
 	}
 

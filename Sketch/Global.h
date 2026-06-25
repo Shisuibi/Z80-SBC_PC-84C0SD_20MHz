@@ -8,6 +8,7 @@
 //==============================================================================//
 #include	<BLEDevice.h>								//	BLEDeviceライブラリ
 #include	<SPIFFS.h>									//	SPIFFSライブラリ
+#include	<WiFi.h>									//	Wi-Fiライブラリ
 //------------------------------------------------------------------------------//
 #define		SDFAT_FILE_TYPE				1				//	FAT形式（FAT16/FAT32）
 #include	<SdFat.h>									//	SdFatライブラリ
