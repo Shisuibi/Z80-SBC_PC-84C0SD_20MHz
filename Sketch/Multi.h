@@ -45,6 +45,9 @@ enum {
 
 
 //==============================================================================//
+static Cint08* pInterComStart = "M/S InterCom Start";	//	相互通信電文（開始）
+static Cint08* pInterComStdBy = "M/S InterCom StdBy";	//	相互通信電文（待機）
+//------------------------------------------------------------------------------//
 static Sint08 iMasterSlave;								//	主機・補機フラグ
 static Sint08 iSynchWait;								//	同期待機フラグ
 //------------------------------------------------------------------------------//
@@ -76,6 +79,10 @@ static void MultiData(Uint08 iData) {
 static Uint08 MultiRecep(void) {
 	while(Serial1.available() == 0);
 	return(Serial1.read());
+}
+//------------------------------------------------------------------------------//
+static void MultiString(Cint08* pString) {
+	while(*pString != NUL) MultiData(*pString++);
 }
 //------------------------------------------------------------------------------//
 static void MultiSector(void) {
@@ -232,10 +239,12 @@ static void MultiInit(void) {
 //------------------------------------------------------------------------------//
 static void MultiMove(void) {
 	if(iResetRequest == ResetModeSynchWait) {
+		MultiString(pInterComStart);
+		while(!(Serial1.findUntil(pInterComStart, pInterComStdBy)));
+
 		MultiData(CodeTelSynchWait);
 		MultiWait(CodeTelSynchWait);
 
-		MultiFlush();
 		iResetRequest = ResetModeBootExec;
 	}
 
